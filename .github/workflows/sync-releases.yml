@@ -1,0 +1,35 @@
+# Keeps docs/releases.json up to date so the website still works if GitHub's public API is rate-limited.
+# Runs automatically whenever you publish, edit or delete a release. No manual steps needed.
+name: Sync releases for website
+on:
+  release:
+    types: [published, edited, deleted, released, unpublished]
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+  pages: write
+env:
+  SOURCE_REPO: Tombytee/ReleaseFetch
+  GH_TOKEN: ${{ github.token }}
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download release list
+        run: |
+          mkdir -p docs
+          curl -fsSL -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/$SOURCE_REPO/releases?per_page=50" -o docs/releases.json
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/releases.json
+          if ! git diff --staged --quiet; then
+            git commit -m "chore: update releases.json"
+            git push
+            gh api -X POST "repos/${{ github.repository }}/pages/builds" || true
+          fi
