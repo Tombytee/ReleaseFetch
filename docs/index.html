@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ReleaseFetch – Download the right APK from any GitHub release</title>
+<meta name="description" content="ReleaseFetch is an Android app that lists a GitHub repository’s releases, picks the asset that matches your device, and downloads it.">
+<meta property="og:title" content="ReleaseFetch – the right APK from any GitHub release"><meta property="og:description" content="Paste a GitHub repository, get the release file that matches your Android device."><meta property="og:type" content="website">
+<meta name="theme-color" content="#6750A4">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%236750A4'/%3E%3Cpath d='M16 7v12m0 0-5-5m5 5 5-5M9 24h14' stroke='%23D4F26B' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{--bg:#F4F1FA;--ink:#1B1630;--mut:#5B5670;--acc:#6750A4;--btn:#6750A4;--btnt:#fff;--hi:#D4F26B;--hit:#1B1630;--line:#D9D2EA;--card:#fff;--sans:'Bricolage Grotesque',system-ui,-apple-system,'Segoe UI',sans-serif;--mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace}
+@media(prefers-color-scheme:dark){:root{--bg:#15111F;--ink:#EDE9F7;--mut:#A8A1BD;--acc:#CFBCFF;--btn:#CFBCFF;--btnt:#21005D;--line:#322A49;--card:#1E1830}}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--acc)}code,.mono{font-family:var(--mono);font-size:.88em}
+:focus-visible{outline:3px solid var(--acc);outline-offset:3px;border-radius:6px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+header{display:flex;align-items:center;justify-content:space-between;padding:20px 0}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none}
+.logo i{width:30px;height:30px;border-radius:9px;background:var(--acc);display:grid;place-items:center}
+.logo svg{width:18px;height:18px;stroke:var(--hi);fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+nav a{margin-left:22px;color:var(--mut);text-decoration:none;font-weight:500;font-size:.95rem}nav a:hover{color:var(--ink)}
+.btn{display:inline-flex;align-items:center;gap:10px;background:var(--btn);color:var(--btnt);font:600 1.05rem var(--sans);padding:15px 26px;border-radius:999px;text-decoration:none;border:0;cursor:pointer;transition:transform .15s}
+.btn:hover{transform:translateY(-2px)}.btn small{font:600 .82rem var(--mono);background:rgba(127,127,127,.28);padding:2px 10px;border-radius:999px}.btn small:empty{display:none}.vtag{display:inline-block;margin:0 0 18px;background:var(--hi);color:var(--hit);font:600 .85rem var(--mono);padding:5px 12px;border-radius:8px}
+.btn.off{background:var(--line);color:var(--mut);pointer-events:none;cursor:not-allowed}
+.btn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;padding:56px 0 80px}
+h1{font-size:clamp(2.5rem,6vw,4.4rem);line-height:1;letter-spacing:-.035em;margin:0 0 22px;font-weight:800}
+.lead{font-size:1.2rem;color:var(--mut);max-width:34ch;margin:0 0 30px}
+.meta{margin-top:16px;color:var(--mut);font-size:.92rem;min-height:1.5em}.meta b{color:var(--ink)}
+.demo{background:var(--card);border:2px solid var(--ink);border-radius:20px;padding:20px;box-shadow:8px 8px 0 var(--acc)}
+.demo h2{font:600 .95rem var(--sans);margin:0 0 4px}.demo p{margin:0 0 14px;color:var(--mut);font-size:.9rem}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.chip{font:600 .82rem var(--mono);padding:7px 12px;border-radius:8px;border:1.5px solid var(--line);background:transparent;color:var(--ink);cursor:pointer}
+.chip[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.files{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.files li{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:10px 12px;border-radius:10px;font:.82rem var(--mono);border:1.5px solid transparent;color:var(--mut);transition:background .25s,color .25s}
+.files li.m{background:var(--hi);color:var(--hit);border-color:var(--hit);font-weight:600}
+.files li em{font:600 .7rem var(--sans);font-style:normal;opacity:0}.files li.m em{opacity:1}
+section{padding:72px 0;border-top:1.5px solid var(--line)}
+h2.t{font-size:clamp(1.8rem,3.4vw,2.6rem);line-height:1.08;letter-spacing:-.025em;margin:0 0 14px;max-width:20ch}
+.sub{color:var(--mut);max-width:52ch;margin:0 0 36px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:32px;counter-reset:s;list-style:none;padding:0;margin:0}
+.steps li{counter-increment:s;position:relative;padding-top:54px}
+.steps li:before{content:counter(s);position:absolute;top:0;left:0;width:40px;height:40px;border-radius:50%;background:var(--acc);color:var(--btnt);display:grid;place-items:center;font:700 1rem var(--mono)}
+.steps li:not(:last-child):after{content:'';position:absolute;top:20px;left:52px;right:-20px;border-top:2px dashed var(--line)}
+.steps b{display:block;font-size:1.1rem;margin-bottom:4px}.steps span{color:var(--mut)}
+dl.f{display:grid;grid-template-columns:repeat(2,1fr);gap:0 56px;margin:0}
+dl.f div{padding:20px 0;border-bottom:1.5px solid var(--line)}
+dl.f dt{font-weight:700;font-size:1.1rem}dl.f dd{margin:4px 0 0;color:var(--mut)}
+.rel{display:grid;grid-template-columns:260px 1fr;gap:48px}
+.ver{font:800 clamp(2.6rem,6vw,4rem)/1 var(--sans);letter-spacing:-.04em;margin:0}
+.badge{display:inline-block;margin-top:10px;background:var(--hi);color:var(--hit);font:600 .75rem var(--mono);padding:4px 10px;border-radius:6px}
+.log{background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:8px 26px 22px;max-height:460px;overflow:auto}
+.log h4{margin:22px 0 6px}.log p{margin:8px 0}.log ul{padding-left:20px;margin:6px 0}
+.assets{list-style:none;padding:0;margin:18px 0 0;display:grid;gap:8px}
+.assets a{display:flex;justify-content:space-between;gap:12px;padding:12px 16px;border:1.5px solid var(--line);border-radius:12px;text-decoration:none;color:var(--ink);font:.85rem var(--mono);background:var(--card)}
+.assets a:hover{border-color:var(--acc)}.assets span{color:var(--mut)}
+.note{padding:16px 20px;border-radius:12px;border:1.5px dashed var(--acc);color:var(--ink)}
+details{border-bottom:1.5px solid var(--line)}
+summary{display:flex;align-items:baseline;gap:16px;padding:18px 0;cursor:pointer;list-style:none;flex-wrap:wrap}
+summary::-webkit-details-marker{display:none}summary:before{content:'+';font:600 1.2rem var(--mono);color:var(--acc);width:18px}
+details[open] summary:before{content:'–'}
+summary b{font-size:1.2rem}summary span{color:var(--mut);font-size:.9rem}
+.hb{padding:0 0 22px 34px}.hb .btn{padding:10px 18px;font-size:.92rem;margin-top:8px}
+footer{border-top:1.5px solid var(--line);padding:40px 0 56px;color:var(--mut);display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;font-size:.95rem}
+footer a{margin-right:18px}
+@media(max-width:820px){.hero,.rel{grid-template-columns:1fr;gap:36px}.steps{grid-template-columns:1fr}.steps li:after{display:none!important}dl.f{grid-template-columns:1fr}nav a:not(.keep){display:none}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <a class="logo" href="#top"><i><svg viewBox="0 0 24 24"><path d="M12 4v11m0 0-5-5m5 5 5-5M5 20h14"/></svg></i>ReleaseFetch</a>
+  <nav><a href="#how">How it works</a><a href="#latest">Latest release</a><a href="#history">History</a><a class="keep" href="https://github.com/Tombytee/ReleaseFetch">GitHub</a></nav>
+</header>
+
+<main id="top">
+<div class="hero">
+  <div>
+    <p class="vtag" id="vTag" hidden></p>
+    <h1>The right APK, without reading filenames.</h1>
+    <p class="lead">Paste a GitHub repository. ReleaseFetch lists its releases, picks the file built for your phone’s CPU, and downloads it.</p>
+    <a class="btn dl off" aria-disabled="true"><svg viewBox="0 0 24 24"><path d="M12 4v11m0 0-5-5m5 5 5-5M5 20h14"/></svg><span class="lbl">Checking latest release…</span><small class="v"></small></a>
+    <p class="meta" id="heroMeta" aria-live="polite"></p>
+    <noscript><p class="meta"><a href="https://github.com/Tombytee/ReleaseFetch/releases/latest/download/app-release.apk">Download the latest APK</a></p></noscript>
+  </div>
+  <div class="demo" aria-labelledby="dh">
+    <h2 id="dh">See the matching in action</h2>
+    <p>Example repository. Choose a device CPU:</p>
+    <div class="chips" role="group" aria-label="Device CPU architecture"></div>
+    <ul class="files"></ul>
+  </div>
+</div>
+
+<section id="how">
+  <h2 class="t">Three steps from link to install</h2>
+  <p class="sub">No digging through the Assets list on a small screen.</p>
+  <ol class="steps">
+    <li><b>Paste a repository URL</b><span>Any public GitHub repository that publishes releases.</span></li>
+    <li><b>Check the highlighted file</b><span>ReleaseFetch reads your device’s architecture and marks the compatible assets.</span></li>
+    <li><b>Download and install</b><span>Files download inside the app, ready to open.</span></li>
+  </ol>
+</section>
+
+<section>
+  <h2 class="t">What’s inside</h2>
+  <dl class="f">
+    <div><dt>Repository lookup</dt><dd>Fetches every release of a public repository from the GitHub Releases API.</dd></div>
+    <div><dt>Architecture matching</dt><dd>Recognises <code>arm64-v8a</code>, <code>armeabi-v7a</code> and <code>x86_64</code> builds and highlights yours.</dd></div>
+    <div><dt>Downloads in the app</dt><dd>Pick an asset and download it without leaving ReleaseFetch.</dd></div>
+    <div><dt>Update checker</dt><dd>Tells you when a newer version of ReleaseFetch is out.</dd></div>
+    <div><dt>Release browser</dt><dd>Move between versions and see each one’s assets in a clear list.</dd></div>
+    <div><dt>Material 3 design</dt><dd>An adaptive interface built for Android, in light and dark.</dd></div>
+  </dl>
+</section>
+
+<section id="latest">
+  <div class="rel">
+    <div>
+      <p class="ver" id="rVer">–</p>
+      <span class="badge">Latest stable</span>
+      <p class="meta" id="rMeta"></p>
+      <a class="btn dl off" aria-disabled="true"><svg viewBox="0 0 24 24"><path d="M12 4v11m0 0-5-5m5 5 5-5M5 20h14"/></svg><span class="lbl">Download APK</span><small class="v"></small></a>
+    </div>
+    <div>
+      <h2 class="t">What’s new</h2>
+      <div class="log" id="rLog"><p>Loading release notes…</p></div>
+      <ul class="assets" id="rAssets"></ul>
+    </div>
+  </div>
+</section>
+
+<section id="install">
+  <h2 class="t">Installing on Android</h2>
+  <p class="sub">Android asks for permission the first time you install an APK from outside the Play Store.</p>
+  <ol class="steps">
+    <li><b>Download the APK</b><span>Tap any Download APK button on this page.</span></li>
+    <li><b>Allow the install</b><span>If prompted, enable “Install unknown apps” for your browser or file manager.</span></li>
+    <li><b>Open ReleaseFetch</b><span>Paste a repository URL and pick your first asset.</span></li>
+  </ol>
+  <p style="margin-top:36px"><a class="btn dl off" aria-disabled="true"><svg viewBox="0 0 24 24"><path d="M12 4v11m0 0-5-5m5 5 5-5M5 20h14"/></svg><span class="lbl">Download APK</span><small class="v"></small></a></p>
+</section>
+
+<section id="history">
+  <h2 class="t">Release history</h2>
+  <p class="sub">Every published stable version. Each one has its own direct download.</p>
+  <div id="hist"><p>Loading…</p></div>
+</section>
+</main>
+
+<footer>
+  <div><b style="color:var(--ink)">ReleaseFetch</b><br>Designed and developed by Subham Kumar Prusty.</div>
+  <div><a href="https://github.com/Tombytee/ReleaseFetch">Source code</a><a href="https://github.com/Tombytee/ReleaseFetch/issues">Report an issue</a></div>
+</footer>
+</div>
+
+<script>
+/* Only setting you ever need to edit: the repository that publishes the releases. */
+const REPO = 'Tombytee/ReleaseFetch';
+const PREFERRED_ASSET = 'app-release.apk';
+
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const inline = s => esc(s).replace(/`([^`]+)`/g,'<code>$1</code>').replace(/\*\*([^*]+)\*\*/g,'<b>$1</b>').replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');
+function md(t){let h='',ul=false;for(const l of (t||'').replace(/\r/g,'').split('\n')){const m=l.match(/^\s*[-*]\s+(.*)/);if(m){if(!ul){h+='<ul>';ul=true}h+='<li>'+inline(m[1])+'</li>';continue}if(ul){h+='</ul>';ul=false}const g=l.match(/^#{1,6}\s+(.*)/);if(g)h+='<h4>'+inline(g[1])+'</h4>';else if(l.trim())h+='<p>'+inline(l)+'</p>'}return h+(ul?'</ul>':'')}
+const date = d => new Date(d).toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'});
+const fmt = t => /^\d/.test(t) ? 'v'+t : t;
+const showVer = v => {const e=$('#vTag');e.textContent='Latest version: '+v;e.hidden=false};
+const mb = b => (b/1048576).toFixed(1)+' MB';
+const apkOf = r => (r.assets||[]).find(a=>a.name===PREFERRED_ASSET) || (r.assets||[]).find(a=>/\.apk$/i.test(a.name));
+
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+async function getJSON(url,ms=6000){
+  const c=new AbortController(),t=setTimeout(()=>c.abort(),ms);
+  try{const r=await fetch(url,{headers:{Accept:'application/vnd.github+json'},signal:c.signal,cache:'no-store'});if(!r.ok)throw new Error(String(r.status));return await r.json()}
+  finally{clearTimeout(t)}
+}
+const clean=a=>{if(!Array.isArray(a))throw new Error('bad data');return a.filter(r=>!r.draft&&!r.prerelease).sort((x,y)=>new Date(y.published_at||y.created_at)-new Date(x.published_at||x.created_at))};
+/* Sources, in order: 1) live GitHub API (retried once)  2) releases.json kept on this site by the sync workflow
+   3) last copy saved in this browser  4) permanent latest-download link (see fallback below). */
+async function loadReleases(){
+  const key='rf:'+REPO,api=`https://api.github.com/repos/${REPO}/releases?per_page=50`;
+  const save=d=>{try{localStorage.setItem(key,JSON.stringify({t:Date.now(),d}))}catch(e){}return d};
+  for(let i=0;i<2;i++){
+    try{return save(clean(await getJSON(api)))}
+    catch(e){console.warn('live API failed',e.message);if(/^(403|404|429)$/.test(e.message))break;await sleep(700)}
+  }
+  try{const d=clean(await getJSON('releases.json?t='+Date.now()));if(d.length)return save(d)}catch(e){console.warn('releases.json unavailable',e.message)}
+  try{const c=JSON.parse(localStorage.getItem(key)||'null');if(c&&c.d&&c.d.length)return c.d}catch(e){}
+  throw new Error('all sources failed');
+}
+
+/* Backup link: GitHub always redirects this to app-release.apk of the newest stable release. */
+const FALLBACK_URL=`https://github.com/${REPO}/releases/latest/download/${PREFERRED_ASSET}`;
+function fallback(why){
+  setButtons(FALLBACK_URL,'');
+  fetch(`https://img.shields.io/github/v/release/${REPO}.json`).then(r=>r.json()).then(j=>{const v=String(j.value||'');if(/^v?\d/.test(v)){const f=fmt(v);setButtons(FALLBACK_URL,f);showVer(f);$('#rVer').textContent=f;$('#heroMeta').textContent=''}}).catch(()=>{});
+  const rel=`https://github.com/${REPO}/releases`;
+  $('#heroMeta').textContent='Version details couldn’t load ('+why+'). The button still downloads the newest release.';
+  $('#rVer').textContent='Latest';
+  $('#rLog').innerHTML=`<p class="note">Release notes couldn’t load right now. <a href="${rel}" target="_blank" rel="noopener">Read them on GitHub</a>.</p>`;
+  $('#hist').innerHTML=`<p class="note">History couldn’t load right now. <a href="${rel}" target="_blank" rel="noopener">See all releases on GitHub</a>.</p>`;
+}
+
+/* One latest-APK URL drives every download button on the page. */
+function setButtons(url,ver,label){
+  $$('.dl').forEach(b=>{
+    const l=b.querySelector('.lbl'),v=b.querySelector('.v');
+    if(url){b.href=url;b.setAttribute('download',PREFERRED_ASSET);b.removeAttribute('aria-disabled');b.classList.remove('off');l.textContent='Download APK';if(v)v.textContent=ver}
+    else{b.removeAttribute('href');b.setAttribute('aria-disabled','true');b.classList.add('off');l.textContent=label;if(v)v.textContent=''}
+  });
+}
+
+function render(rels){
+  const latest=rels[0],apk=latest&&apkOf(latest);
+  if(!latest){setButtons(null,'','No release available yet');$('#rVer').textContent='–';$('#rLog').innerHTML='<p class="note">No stable release has been published yet. Check back soon.</p>';$('#hist').innerHTML='<p class="note">No releases to show.</p>';$('#heroMeta').textContent='';return}
+  const ver=fmt(latest.tag_name);showVer(ver);
+  $('#rVer').textContent=ver;
+  $('#rMeta').innerHTML=`Published ${date(latest.published_at||latest.created_at)}`;
+  $('#rLog').innerHTML=md(latest.body)||'<p>No release notes were provided for this version.</p>';
+  if(apk){
+    setButtons(apk.browser_download_url,ver);
+    $('#heroMeta').innerHTML=`<b>${esc(ver)}</b> · ${date(latest.published_at||latest.created_at)} · ${mb(apk.size)} · Android`;
+  }else{
+    setButtons(null,'','APK not available');
+    $('#heroMeta').textContent='The latest release has no APK attached yet. Please check back shortly.';
+    $('#rLog').insertAdjacentHTML('afterbegin','<p class="note">The latest release doesn’t include an APK file yet.</p>');
+  }
+  $('#rAssets').innerHTML=(latest.assets||[]).map(a=>`<li><a href="${esc(a.browser_download_url)}"><span style="color:var(--ink)">${esc(a.name)}</span><span>${mb(a.size)}</span></a></li>`).join('');
+  $('#hist').innerHTML=rels.map((r,i)=>{const a=apkOf(r);return `<details${i===0?' open':''}><summary><b>${esc(r.name||r.tag_name)}</b><span>${date(r.published_at||r.created_at)}${i===0?' · latest':''}</span></summary><div class="hb">${md(r.body)||'<p>No release notes.</p>'}${a?`<a class="btn" href="${esc(a.browser_download_url)}" download="${esc(a.name)}">Download ${esc(fmt(r.tag_name))} APK</a>`:'<p class="meta">No APK attached to this release.</p>'}</div></details>`}).join('');
+}
+
+let settled=false;
+/* If the check is slow, enable the permanent latest-download link after 4s instead of leaving the button disabled. */
+const early=setTimeout(()=>{if(!settled)setButtons(FALLBACK_URL,'')},4000);
+loadReleases().then(r=>{settled=true;clearTimeout(early);try{render(r)}catch(e){console.error(e);fallback('display error')}}).catch(e=>{settled=true;clearTimeout(early);console.error(e);fallback(e.message||'network error')});
+$$('.dl').forEach(b=>b.addEventListener('click',e=>{if(b.classList.contains('off'))e.preventDefault()}));
+
+/* Matching demo */
+const abis=['arm64-v8a','armeabi-v7a','x86_64'],files=['app-arm64-v8a-release.apk','app-armeabi-v7a-release.apk','app-x86_64-release.apk','app-universal-release.apk'];
+const chips=$('.chips'),list=$('.files');
+chips.innerHTML=abis.map(a=>`<button class="chip" type="button" aria-pressed="false">${a}</button>`).join('');
+function pick(abi){
+  $$('.chip').forEach(c=>c.setAttribute('aria-pressed',c.textContent===abi));
+  list.innerHTML=files.map(f=>{const m=f.includes(abi);return `<li class="${m?'m':''}"><span>${f}</span><em>Matches your device</em></li>`}).join('');
+}
+chips.addEventListener('click',e=>{if(e.target.classList.contains('chip'))pick(e.target.textContent)});
+pick('arm64-v8a');
+</script>
+</body>
+</html>
