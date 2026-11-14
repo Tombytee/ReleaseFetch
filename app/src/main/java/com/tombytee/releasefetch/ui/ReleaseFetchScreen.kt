@@ -58,6 +58,7 @@ import com.tombytee.releasefetch.data.update.AppUpdateManager
 import com.tombytee.releasefetch.domain.ClassifiedAsset
 import com.tombytee.releasefetch.domain.DownloadItemState
 import com.tombytee.releasefetch.domain.PlatformCategory
+import com.tombytee.releasefetch.ui.components.AboutDeveloperBottomSheet
 import com.tombytee.releasefetch.ui.components.DeviceSpecsBanner
 import com.tombytee.releasefetch.ui.components.DownloadsBottomSheet
 import com.tombytee.releasefetch.ui.components.ErrorAnalysisCard
@@ -82,6 +83,7 @@ fun ReleaseFetchScreen(
     val clipboardManager = LocalClipboardManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
     var showDownloadsSheet by rememberSaveable { mutableStateOf(false) }
+    var showAboutDeveloperSheet by rememberSaveable { mutableStateOf(false) }
     var promptedNotificationPermission by rememberSaveable { mutableStateOf(false) }
 
     val notificationPermissionLauncher = rememberLauncherForActivityResult(
@@ -189,6 +191,7 @@ fun ReleaseFetchScreen(
                 appUpdateManager = appUpdateManager,
                 downloadLookup = downloadLookup,
                 onOpenDownloads = { showDownloadsSheet = true },
+                onOpenAboutDeveloper = { showAboutDeveloperSheet = true },
                 onPasteClicked = onPasteClicked,
                 onAnalyzeClicked = onAnalyzeClicked,
                 onRepoSelected = onRepoSelected,
@@ -210,6 +213,17 @@ fun ReleaseFetchScreen(
             onDismissRecord = viewModel::dismissDownloadRecord,
         )
     }
+
+    if (showAboutDeveloperSheet) {
+        AboutDeveloperBottomSheet(
+            onDismissSheet = { showAboutDeveloperSheet = false },
+            onOpenUrlError = { message ->
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar(message)
+                }
+            },
+        )
+    }
 }
 
 @Composable
@@ -219,6 +233,7 @@ private fun ReleaseFetchLayout(
     appUpdateManager: AppUpdateManager?,
     downloadLookup: (Long) -> DownloadItemState?,
     onOpenDownloads: () -> Unit,
+    onOpenAboutDeveloper: () -> Unit,
     onPasteClicked: () -> Unit,
     onAnalyzeClicked: () -> Unit,
     onRepoSelected: (String) -> Unit,
@@ -266,6 +281,7 @@ private fun ReleaseFetchLayout(
                     onBrandClick = viewModel::resetToHome,
                     isCheckingUpdatesFlow = appUpdateManager?.isCheckingManual,
                     onCheckUpdates = appUpdateManager?.let { manager -> manager::checkForUpdatesManually },
+                    onOpenAboutDeveloper = onOpenAboutDeveloper,
                 )
                 LazyColumn(
                     state = leftListState,
@@ -354,6 +370,7 @@ private fun ReleaseFetchLayout(
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
                     isCheckingUpdatesFlow = appUpdateManager?.isCheckingManual,
                     onCheckUpdates = appUpdateManager?.let { manager -> manager::checkForUpdatesManually },
+                    onOpenAboutDeveloper = onOpenAboutDeveloper,
                 )
                 LazyColumn(
                     state = listState,

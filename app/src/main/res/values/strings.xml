@@ -59,4 +59,16 @@
     <string name="update_status_installing">Confirm installation in Android’s installer…</string>
     <string name="update_install_cancelled_note">Installation was not completed. Please install the update to continue using ReleaseFetch.</string>
     <string name="update_download_failed_title">Download Interrupted</string>
+    <string name="about_developer_title">About Developer</string>
+    <string name="developer_name">Subham Kumar Prusty</string>
+    <string name="developer_credit">Built with ❤️ by Subham</string>
+    <string name="developer_role_tagline">Indie Android Developer • Open-Source Creator</string>
+    <string name="cd_developer_avatar">Profile photo of Subham Kumar Prusty</string>
+    <string name="about_connect_heading">Connect &amp; Follow</string>
+    <string name="social_github">GitHub</string>
+    <string name="social_instagram">Instagram</string>
+    <string name="social_threads">Threads</string>
+    <string name="social_youtube">YouTube</string>
+    <string name="developer_subtitle">Neighbor\'s Eternal Struggle 🇮🇳💀</string>
+    <string name="error_open_external_link">No browser or app found to open %1$s</string>
 </resources>

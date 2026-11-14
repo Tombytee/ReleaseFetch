@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Memory
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.PhoneAndroid
 import androidx.compose.material.icons.outlined.SystemUpdate
 import androidx.compose.material3.AssistChip
@@ -78,6 +79,7 @@ fun TopBrandBar(
     modifier: Modifier = Modifier,
     isCheckingUpdatesFlow: StateFlow<Boolean>? = null,
     onCheckUpdates: (() -> Unit)? = null,
+    onOpenAboutDeveloper: (() -> Unit)? = null,
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -101,13 +103,30 @@ fun TopBrandBar(
                 text = stringResource(R.string.app_tagline),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
         }
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            horizontalArrangement = Arrangement.spacedBy(2.dp),
         ) {
+            if (onOpenAboutDeveloper != null) {
+                IconButton(
+                    onClick = onOpenAboutDeveloper,
+                    modifier = Modifier
+                        .minimumInteractiveComponentSize()
+                        .testTag("about_developer_button"),
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Info,
+                        contentDescription = stringResource(R.string.about_developer_title),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+
             if (onCheckUpdates != null) {
                 CheckUpdatesHeaderButton(
                     isCheckingUpdatesFlow = isCheckingUpdatesFlow,
