@@ -54,7 +54,7 @@ dl.f dt{font-weight:700;font-size:1.1rem}dl.f dd{margin:4px 0 0;color:var(--mut)
 .rel{display:grid;grid-template-columns:260px 1fr;gap:48px}
 .ver{font:800 clamp(2.6rem,6vw,4rem)/1 var(--sans);letter-spacing:-.04em;margin:0}
 .badge{display:inline-block;margin-top:10px;background:var(--hi);color:var(--hit);font:600 .75rem var(--mono);padding:4px 10px;border-radius:6px}
-.log{background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:8px 26px 22px;max-height:460px;overflow:auto}
+.log{background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:8px 26px 22px;}
 .log h4{margin:22px 0 6px}.log p{margin:8px 0}.log ul{padding-left:20px;margin:6px 0}
 .assets{list-style:none;padding:0;margin:18px 0 0;display:grid;gap:8px}
 .assets a{display:flex;justify-content:space-between;gap:12px;padding:12px 16px;border:1.5px solid var(--line);border-radius:12px;text-decoration:none;color:var(--ink);font:.85rem var(--mono);background:var(--card)}
@@ -79,12 +79,12 @@ footer a{margin-right:18px}
 .rh .badge{margin:0 0 0 10px;vertical-align:middle}
 .ra{display:flex;align-items:center;gap:14px;flex-wrap:wrap}.ra .meta{margin:0;min-height:0;font:.8rem var(--mono)}
 .btn.sm{padding:10px 18px;font-size:.92rem}
-.tg{background:none;border:0;color:var(--acc);font:600 .92rem var(--sans);cursor:pointer;padding:12px 0 0;display:inline-flex;gap:10px;align-items:center}
-.tg:after{content:'';width:7px;height:7px;border-right:2px solid;border-bottom:2px solid;transform:rotate(45deg);transition:transform .3s;margin-top:-3px}
-.tg[aria-expanded=true]:after{transform:rotate(-135deg);margin-top:3px}
-.nt{display:grid;grid-template-rows:0fr;transition:grid-template-rows .35s ease}.nt.open{grid-template-rows:1fr}
-.ni{overflow:hidden;min-height:0}.ni>:first-child{margin-top:12px}.ni h4{margin:14px 0 4px}.ni ul{padding-left:20px;margin:6px 0}.ni p{margin:6px 0}
 .assets a{flex-wrap:wrap;word-break:break-all}
+mark{background:linear-gradient(transparent 52%,var(--hi) 52%);color:inherit;font-weight:700;padding:0 2px}
+.hlist{list-style:none;margin:0;padding:0}.hlist li{position:relative;padding:14px 0 14px 34px;border-bottom:1.5px solid var(--line)}.hlist li:last-child{border:0}
+.hlist li:before{content:'✓';position:absolute;left:0;top:15px;width:22px;height:22px;border-radius:50%;background:var(--hi);color:var(--hit);display:grid;place-items:center;font:700 .8rem var(--sans)}
+.sum{margin:14px 0 0;padding:10px 14px;border-radius:10px;background:var(--bg);font-weight:600}
+.hl{margin:14px 0 0;padding-left:12px;border-left:3px solid var(--hi);color:var(--ink)}
 /* Animation */
 @keyframes up{from{opacity:0;transform:translateY(22px)}}
 @keyframes pop{from{transform:scale(.96);opacity:.5}}
@@ -159,7 +159,16 @@ footer a{margin-right:18px}
     </div>
     <div>
       <h2 class="t">What’s new</h2>
-      <div class="log" id="rLog"><p>Loading release notes…</p></div>
+      <div class="log" id="rLog">
+        <p class="sum" id="rSum" hidden></p>
+        <ul class="hlist">
+          <li><mark>Paste any public GitHub repository</mark> and see all its releases in one place.</li>
+          <li><mark>Smart architecture matching</mark> picks the APK built for your device: arm64-v8a, armeabi-v7a or x86_64.</li>
+          <li><mark>Download inside the app</mark> and install without hunting through GitHub’s Assets list.</li>
+          <li><mark>Built-in update checker</mark> tells you when a newer ReleaseFetch is out.</li>
+          <li><mark>Material 3 design</mark> with a clean, adaptive interface for Android.</li>
+        </ul>
+      </div>
       <ul class="assets" id="rAssets"></ul>
     </div>
   </div>
@@ -202,6 +211,7 @@ const date = d => new Date(d).toLocaleDateString(undefined,{year:'numeric',month
 const ICON='<svg viewBox="0 0 24 24"><path d="M12 4v11m0 0-5-5m5 5 5-5M5 20h14"/></svg>';
 const fmt = t => /^\d/.test(t) ? 'v'+t : t;
 const showVer = v => {const e=$('#vTag');e.textContent='Latest version: '+v;e.hidden=false};
+const brief=t=>{const l=(t||'').replace(/\r/g,'').split('\n').map(x=>x.replace(/^\s*(?:[-*]|#{1,6})\s*/,'').replace(/\[([^\]]+)\]\([^)]*\)/g,'$1').replace(/[*_`]/g,'').trim()).find(x=>x&&!/^(what.?s new|changelog|release notes)\b/i.test(x));return l?(l.length>110?l.slice(0,107)+'…':l):''};
 const mb = b => (b/1048576).toFixed(1)+' MB';
 const apkOf = r => (r.assets||[]).find(a=>a.name===PREFERRED_ASSET) || (r.assets||[]).find(a=>/\.apk$/i.test(a.name));
 
@@ -210,7 +220,6 @@ const io='IntersectionObserver' in window?new IntersectionObserver(es=>es.forEac
 function reveal(){$$('.rv:not(.in):not([data-o])').forEach(el=>{el.dataset.o=1;io?io.observe(el):el.classList.add('in')})}
 $$('section h2.t, section .sub, .steps li, dl.f > div, .rel > div, footer').forEach(el=>{el.classList.add('rv');el.style.setProperty('--d',Math.min([...el.parentElement.children].indexOf(el),5)*.1+'s')});
 reveal();
-$('#hist').addEventListener('click',e=>{const b=e.target.closest('.tg');if(!b)return;const o=b.getAttribute('aria-expanded')!=='true';b.setAttribute('aria-expanded',o);document.getElementById(b.getAttribute('aria-controls')).classList.toggle('open',o)});
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 /* Plain fetch(url) with a Promise.race timeout: no AbortSignal or custom options, so it also works in
    previews/webviews that proxy fetch through postMessage (those can't clone an AbortSignal). */
@@ -242,7 +251,6 @@ function fallback(why){
   const rel=`https://github.com/${REPO}/releases`;
   $('#heroMeta').textContent='Version details couldn’t load ('+why+'). The button still downloads the newest release.';
   $('#rVer').textContent='Latest';
-  $('#rLog').innerHTML=`<p class="note">Release notes couldn’t load right now. <a href="${rel}" target="_blank" rel="noopener">Read them on GitHub</a>.</p>`;
   $('#hist').innerHTML=`<p class="note">History couldn’t load right now. <a href="${rel}" target="_blank" rel="noopener">See all releases on GitHub</a>.</p>`;
 }
 
@@ -257,11 +265,11 @@ function setButtons(url,ver,label){
 
 function render(rels){
   const latest=rels[0],apk=latest&&apkOf(latest);
-  if(!latest){setButtons(null,'','No release available yet');$('#rVer').textContent='–';$('#rLog').innerHTML='<p class="note">No stable release has been published yet. Check back soon.</p>';$('#hist').innerHTML='<p class="note">No releases to show.</p>';$('#heroMeta').textContent='';return}
+  if(!latest){setButtons(null,'','No release available yet');$('#rVer').textContent='–';$('#rLog').insertAdjacentHTML('afterbegin','<p class="note">No stable release has been published yet. Check back soon.</p>');$('#hist').innerHTML='<p class="note">No releases to show.</p>';$('#heroMeta').textContent='';return}
   const ver=fmt(latest.tag_name);showVer(ver);
   $('#rVer').textContent=ver;
   $('#rMeta').innerHTML=`Published ${date(latest.published_at||latest.created_at)}`;
-  $('#rLog').innerHTML=md(latest.body)||'<p>No release notes were provided for this version.</p>';
+  const sm=brief(latest.body);if(sm){$('#rSum').textContent='In this release: '+sm;$('#rSum').hidden=false}
   if(apk){
     setButtons(apk.browser_download_url,ver);
     $('#heroMeta').innerHTML=`<b>${esc(ver)}</b> · ${date(latest.published_at||latest.created_at)} · ${mb(apk.size)} · Android`;
@@ -274,7 +282,7 @@ function render(rels){
   $('#hist').innerHTML='<ol class="tl">'+rels.map((r,i)=>{
     const a=apkOf(r),n=(r.assets||[]).filter(x=>/\.apk$/i.test(x.name)).reduce((t,x)=>t+(x.download_count||0),0),
     info=[a?mb(a.size):'',n?n.toLocaleString()+' downloads':''].filter(Boolean).join(' · '),when=r.published_at||r.created_at;
-    return `<li class="rv" style="--d:${Math.min(i,5)*.08}s"><span class="dot"></span><article class="rc"><div class="rh"><div><h3>${esc(fmt(r.tag_name))}</h3><time datetime="${esc(when)}">${date(when)}</time>${i===0?'<span class="badge">Latest</span>':''}</div><div class="ra">${info?`<span class="meta">${info}</span>`:''}${a?`<a class="btn sm" href="${esc(a.browser_download_url)}" download="${esc(a.name)}">${ICON}Download APK</a>`:'<span class="meta">No APK attached</span>'}</div></div><button class="tg" type="button" aria-expanded="${i===0}" aria-controls="n${i}">Release notes</button><div class="nt${i===0?' open':''}" id="n${i}"><div class="ni">${md(r.body)||'<p>No release notes provided.</p>'}</div></div></article></li>`}).join('')+'</ol>';
+    return `<li class="rv" style="--d:${Math.min(i,5)*.08}s"><span class="dot"></span><article class="rc"><div class="rh"><div><h3>${esc(fmt(r.tag_name))}</h3><time datetime="${esc(when)}">${date(when)}</time>${i===0?'<span class="badge">Latest</span>':''}</div><div class="ra">${info?`<span class="meta">${info}</span>`:''}${a?`<a class="btn sm" href="${esc(a.browser_download_url)}" download="${esc(a.name)}">${ICON}Download APK</a>`:'<span class="meta">No APK attached</span>'}</div></div><p class="hl">${esc(brief(r.body)||(i===rels.length-1?'Initial release':'Updated release'))}</p></article></li>`}).join('')+'</ol>';
   reveal();
 }
 
