@@ -206,7 +206,7 @@ Select an appropriate asset and start downloading.
 | Property | Information |
 |:---|:---|
 | Application | ReleaseFetch |
-| Current Version | 1.0 |
+| Current Version | 1.5 |
 | Target Platform | Android |
 | Design System | Material Design 3 |
 | Release Provider | GitHub Releases API |
