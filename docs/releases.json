@@ -68,7 +68,7 @@
         "state": "uploaded",
         "size": 20441727,
         "digest": "sha256:90d91541aecf1fcdf41221d7559eae09cee77f8a974474d4ee0287ee4dab3c2b",
-        "download_count": 86,
+        "download_count": 88,
         "created_at": "2026-11-18T04:37:55Z",
         "updated_at": "2026-11-18T04:47:38Z",
         "browser_download_url": "https://github.com/Tombytee/ReleaseFetch/releases/download/v1.6/app-release.apk"
@@ -147,7 +147,7 @@
         "state": "uploaded",
         "size": 20280261,
         "digest": "sha256:b76d418688b3834ebf30a6baf1b7bde1a687d49460995ebcace266df543caa89",
-        "download_count": 126,
+        "download_count": 127,
         "created_at": "2026-11-17T02:27:50Z",
         "updated_at": "2026-11-17T02:28:40Z",
         "browser_download_url": "https://github.com/Tombytee/ReleaseFetch/releases/download/v1.5/app-release.apk"
